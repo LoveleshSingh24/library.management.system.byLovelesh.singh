@@ -303,7 +303,7 @@ void Student::inputDetails()
     ofp.open("studentDatabase.dat", ios::out | ios::app | ios::binary);
     if (!ofp)
     {
-        cerr << "UNABLE TO OPEN FILE " << endl;
+        cout << "UNABLE TO OPEN FILE " << endl;
         return;
     }
     StudentData student;
@@ -324,21 +324,30 @@ void Student::modifyDetails()
 {
     fstream fp;
     fp.open("studentDatabase.dat", ios::binary | ios::out | ios::ate);
+    /*It’s the other way around. When ios::ate is set, the initial position will be the end of the file, but you are free to seek thereafter. When ios::app is set, all output operations are performed at the end of the file. Since all writes are implicitly preceded by seeks, there is no way to write elsewhere.*/
 
     if (!fp)
     {
-        cerr << "UNABLE TO OPEN FILE!!" << endl;
+        cout << "UNABLE TO OPEN FILE!!" << endl;
     }
-    fp.seekg(0, ios::beg);
+    fp.seekg(0, ios::beg); // make a cursor availabel at the start from the bignning
     int target;
-    cout << "ENTER STUDNET ROLL NUM TO MODIFY";
+    cout << "ENTER STUDNET ROLL NUM TO MODIFY : ";
     cin >> target;
     StudentData student;
     while (fp.read((char *)&student, sizeof(student)))
     {
         if (target == student.rollNo)
         {
-            int position = (-1) * sizeof(StudentData);
+            int position = (-1) * sizeof(target);
+            /*Consider this,
+                Suppose you have a file which has 3 records and you want to modify the second one.
+
+                The compiler will read the first record and compare it with the Rno.Since it does not match,
+                the compiler will then read the second record.
+                The Rno of the second Record matches and
+                hence we have to modify it.*/
+
             fp.seekp(position, ios::cur);
             cout << "ENTER STUDENT'S NEW ROLL NO. : ";
             cin >> student.rollNo;
